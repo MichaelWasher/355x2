@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: requester
+  name: requester
+spec:
+  containers:
+  - image: quay.io/mwasher/scapy:latest
+    name: container-name
+    args:
+    - sleep
+    - inf
+    securityContext:
+      capabilities:
+        add:
+        - SYS_ADMIN
+        - SYS_PTRACE
+      privileged: true
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - receiver
+        topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: receiver
+  name: receiver
+spec:
+  containers:
+  - image: quay.io/mwasher/scapy:latest
+    name: container-name
+    args:
+    - sleep
+    - inf
+    securityContext:
+      capabilities:
+        add:
+        - SYS_ADMIN
+        - SYS_PTRACE
+      privileged: true
